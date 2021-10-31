@@ -1,0 +1,25 @@
+version: '3'
+services:
+  web:
+    build:
+      context: ./
+      dockerfile: ./etc/go/Dockerfile
+    ports:
+      - "3000:3000"
+    links:
+      - db
+    
+  db:
+    build:
+      context: ./
+      dockerfile: ./etc/db/Dockerfile
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_USER: consulta
+      MYSQL_PASSWORD: consulta
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: go_eccommerce
+    # folder is at workspace root.
+    volumes:
+      - ./etc/db/volumes:/var/lib/mysql
