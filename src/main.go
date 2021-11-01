@@ -5,10 +5,10 @@ import (
 	"log"
 	"github.com/gorilla/mux"
 	"fmt"
-	"github.com/gonzalopages64/GO-API-REST"
+	"io/ioutil"
 )
 type user struct {
-	ID string `json:"id,omitempty"`
+	ID int `json:"id,omitempty"`
 	Firstname string `json:"firstname,omitempty"`
 	Lastname string `json:"lastname,omitempty"`
 	Address string `json:"address,omitempty"`
@@ -19,9 +19,9 @@ type user struct {
 	Email string `json:"email,omitempty"`
 	Password string `json:"password,omitempty"`
 }
-type users []user
+type allUsers []user
 
-var user = users {
+var users = allUsers {
 	{
 		ID: 1,
 		Firstname: "Juan",
@@ -31,18 +31,56 @@ var user = users {
 		State: "CA",
 		Zip: "95131",
 		Phone: "408-555-1234",
-		Email: "test@gmail.com"
-		Password: "password"
+		Email: "test@gmail.com",
+		Password: "password",
+	},
+}
 
+//Routes
+func indexRoute(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Welcome to the Home Page!")
+	fmt.Println("Endpoint Hit: indexRoute")
+}
+func contactRouteGET(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Welcome to the Contact page!")
+	fmt.Println("Endpoint Hit: contactRouteGET")
+}
+func usersRoutePOST(w http.ResponseWriter, r *http.Request) {
+	
+	var newUser user
+	reqBody, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		fmt.Fprintf(w, "Inserte un usurio valido")
 	}
+	json.Unmarshal(reqBody, &newUser)
+	newUser.ID = len(users) + 1
+	users = append(users, newUser)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)	
+	json.NewEncoder(w).Encode(newUser)
+
+	fmt.Println("Endpoint Hit: usersRoutePOST")
+}
+func usersRoute(w http.ResponseWriter, r *http.Request) {
+	// Parsea en json el objeto
+	json.NewEncoder(w).Encode(users)
+
+	fmt.Println("Endpoint Hit: usersRoute")
 }
 
 
+
+
+
 func main() {
-	router := mux.NewRouter().strictSlash(true)
+	router := mux.NewRouter().StrictSlash(true)
 	
 
-	router.HandleFunc("/users", getUsers).Methods("GET")
+	router.HandleFunc("/", indexRoute).Methods("GET")
+	router.HandleFunc("/users", usersRoute).Methods("GET")
+	router.HandleFunc("/contact", contactRouteGET).Methods("GET")
+	router.HandleFunc("/users", usersRoutePOST).Methods("POST")
 	log.Fatal(http.ListenAndServe(":8000", router))
 	fmt.Println("Starting the application...")
 
