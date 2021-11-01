@@ -56,13 +56,14 @@ func usersRoutePOST(w http.ResponseWriter, r *http.Request) {
 	newUser.ID = len(users) + 1
 	users = append(users, newUser)
 
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Type", "application/json");
 	w.WriteHeader(http.StatusCreated)	
 	json.NewEncoder(w).Encode(newUser)
 
 	fmt.Println("Endpoint Hit: usersRoutePOST")
 }
 func usersRoute(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json");
 	// Parsea en json el objeto
 	json.NewEncoder(w).Encode(users)
 
